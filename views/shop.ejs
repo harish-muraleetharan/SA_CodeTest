@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom right, #e3f0ff, #fafcff);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .Cart-Container {
+        width: 70%;
+        height: 85%;
+        background-color: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0px 25px 40px #1687d933;
+      }
+      .fruits-container {
+        width: 100%;
+        height: 75%;
+      }
+      .Header {
+        margin: auto;
+        width: 90%;
+        height: 10%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .Heading {
+        font-size: 20px;
+        font-family: ‘Open Sans’;
+        font-weight: 700;
+        color: #2f3841;
+      }
+      .Cart-Items {
+        margin: auto;
+        width: 90%;
+        height: 15%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .about {
+        height: 100%;
+      }
+      .title {
+        padding-top: 15px;
+        line-height: 5px;
+        font-size: 18px;
+        font-family: ‘Open Sans’;
+        font-weight: 800;
+        color: #202020;
+      }
+      .subtitle {
+        line-height: 10px;
+        font-size: 18px;
+        font-family: ‘Open Sans’;
+        font-weight: 600;
+        color: #909090;
+      }
+      .counter {
+        width: 20%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #d9d9d9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        font-family: ‘Open Sans’;
+        font-weight: 900;
+        color: #202020;
+        cursor: pointer;
+      }
+      .count {
+        font-size: 20px;
+        font-family: ‘Open Sans’;
+        font-weight: 900;
+        color: #202020;
+        padding: 0px 10px;
+      }
+      hr.dotted {
+        border-top: 0px dotted #bbb;
+      }
+      .checkout-btn{
+        position:fixed;
+        bottom: 9%;
+        right: 20%;
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 10px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 20px;
+        cursor: pointer;
+        font-family: ‘Open Sans’;
+      }
+    </style>
+    <title>Fruit Shop</title>
+  </head>
+  <body>
+    <script>
+      var fruits = <%-JSON.stringify(data)%>;
+      var fruitsLength = Object.keys(fruits).length;
+    </script>
+    <div class="Cart-Container">
+      <div class="Header">
+        <h3 class="Heading">Fruit Shop</h3>
+      </div>
+      <hr class="dotted" />
+      <div class = "fruits-container"></div>
+      <div class="checkout-btn">Checkout</divclass>
+    </div>
+  </body>
+  <script>
+    
+    //Render fruit items 
+    const fruitNames = Object.keys(fruits);
+    let itemsInCart = {};
+    for (let i = 0; i < fruitNames.length; i++) {
+        let cartItems =
+            '<div id="cart_item_'+i+'" class="Cart-Items">' +
+                '<div class="about">' +
+                    ' <h1 id="item_title_'+i+'" class="title">'+fruitNames[i]+'</h1>' +
+                '</div>'+
+                '<div class="counter">' +
+                    '<div id="decr_btn_'+i+'" class="btn">-</div>' +
+                    '<div id="count_'+i+'" class="count">0</div>' +
+                    '<div id="incr_btn_'+i+'" class="btn">+</div>' +
+                '</div>'+
+            '</div>';
+        $(".fruits-container").append(cartItems);
+
+        //Item Increment
+        $('#incr_btn_'+i).click(()=>{
+            let count = parseInt($('#count_'+i).text());
+            $('#count_'+i).text(count+1);
+        })                                                                                                    
+      
+        //Item Decrement
+        $('#decr_btn_'+i).click(()=>{
+            let count = parseInt($('#count_'+i).text());
+            $('#count_'+i).text(count-1);
+        })
+    }
+    //cart checkout
+    $('.checkout-btn').click(()=>{
+        for (let i = 0; i < fruitNames.length; i++) {
+            let count = parseInt($('#count_'+i).text());
+            if( count > 0 ){
+                let itemName = fruitNames[i];
+                itemsInCart[itemName] = parseInt($('#count_'+i).text());
+            } 
+        }  
+        fetch('http://localhost:8888/cart/items',{
+            method:'POST',
+            body:JSON.stringify({cart:itemsInCart}),
+            headers:{
+                'Content-Type':'application/json'
+            }
+        })
+        .then((res) => {
+            console.log('res',res)
+            if(res.status == '200'){
+                alert('checked out successfully')
+            }
+            else{
+                alert('Cart not checked out')
+            }
+            //return res.json()
+            
+        })
+    }); 
+  </script>
+</html>
